@@ -9,7 +9,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,7 +32,9 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {},
     onNavigateToHome: () -> Unit = {},
-    onNavigateToStats: () -> Unit = {}
+    onNavigateToStats: () -> Unit = {},
+    onExportClick: () -> Unit = {},
+    onImportClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -87,6 +91,8 @@ fun SettingsScreen(
                 onPeriodLengthChange = viewModel::updatePeriodLength,
                 onCycleLengthChange = viewModel::updateCycleLength,
                 onThemeModeChange = viewModel::updateThemeMode,
+                onExportClick = onExportClick,
+                onImportClick = onImportClick,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
@@ -103,6 +109,8 @@ private fun SettingsContent(
     onPeriodLengthChange: (Int) -> Unit,
     onCycleLengthChange: (Int) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
+    onExportClick: () -> Unit,
+    onImportClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -147,6 +155,12 @@ private fun SettingsContent(
                     description = "两次月经第一天的间隔天数"
                 )
             }
+        )
+
+        // 数据管理卡片
+        DataManagementCard(
+            onExportClick = onExportClick,
+            onImportClick = onImportClick
         )
 
         // 说明卡片
@@ -262,6 +276,74 @@ private fun SettingItem(
                     modifier = Modifier.padding(start = 4.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun DataManagementCard(
+    onExportClick: () -> Unit,
+    onImportClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "数据管理",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // 导出按钮
+            Button(
+                onClick = onExportClick,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PinkPrimary,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("导出数据")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 导入按钮
+            OutlinedButton(
+                onClick = onImportClick,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("导入数据")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "导出将生成JSON格式的备份文件，包含所有记录和设置",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

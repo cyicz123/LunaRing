@@ -32,4 +32,8 @@ class DailyRecordRepository @Inject constructor(
     suspend fun deleteRecord(date: LocalDate) {
         dailyRecordDao.deleteByDate(date)
     }
+
+    suspend fun deleteAllRecords() {
+        dailyRecordDao.deleteAll()
+    }
 }

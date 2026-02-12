@@ -50,4 +50,12 @@ class PeriodRepository @Inject constructor(
     suspend fun updatePeriod(period: Period) {
         periodDao.update(period.toEntity())
     }
+
+    suspend fun insertPeriod(period: Period): Long {
+        return periodDao.insert(period.toEntity())
+    }
+
+    suspend fun deleteAllPeriods() {
+        periodDao.deleteAll()
+    }
 }

@@ -4,7 +4,8 @@
       "Skill(superpowers:brainstorming)",
       "Bash(./gradlew :app:assembleDebug:*)",
       "Bash(./gradlew :app:compileDebugKotlin:*)",
-      "Bash(.\\\\gradlew.bat :app:compileDebugKotlin:*)"
+      "Bash(.\\\\gradlew.bat :app:compileDebugKotlin:*)",
+      "Bash(.\\\\gradlew :app:compileDebugKotlin:*)"
     ]
   }
 }

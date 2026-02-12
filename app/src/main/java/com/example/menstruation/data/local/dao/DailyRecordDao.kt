@@ -28,4 +28,7 @@ interface DailyRecordDao {
 
     @Query("DELETE FROM daily_records WHERE date = :date")
     suspend fun deleteByDate(date: LocalDate)
+
+    @Query("DELETE FROM daily_records")
+    suspend fun deleteAll()
 }

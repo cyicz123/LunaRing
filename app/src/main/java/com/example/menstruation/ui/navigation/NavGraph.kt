@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.menstruation.ui.home.HomeScreen
-import com.example.menstruation.ui.settings.SettingsScreen
+import com.example.menstruation.ui.settings.SettingsRoute
 import com.example.menstruation.ui.stats.StatsScreen
 
 sealed class Screen(val route: String) {
@@ -42,7 +42,7 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable(Screen.Settings.route) {
-            SettingsScreen(
+            SettingsRoute(
                 onNavigateBack = {
                     navController.popBackStack()
                 },

@@ -35,4 +35,7 @@ interface PeriodDao {
 
     @Query("DELETE FROM periods WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("DELETE FROM periods")
+    suspend fun deleteAll()
 }
