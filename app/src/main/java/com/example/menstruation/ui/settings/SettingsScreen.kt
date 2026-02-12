@@ -16,11 +16,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.menstruation.ui.theme.*
+import com.example.menstruation.data.model.ThemeMode
+import com.example.menstruation.ui.theme.PinkPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,12 +43,12 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "返回",
-                            tint = TextPrimary
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkBackground
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
@@ -66,7 +68,7 @@ fun SettingsScreen(
                 )
             }
         },
-        containerColor = DarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         if (uiState.isLoading) {
             Box(
@@ -81,8 +83,10 @@ fun SettingsScreen(
             SettingsContent(
                 periodLength = uiState.settings.periodLength,
                 cycleLength = uiState.settings.cycleLength,
+                themeMode = uiState.settings.themeMode,
                 onPeriodLengthChange = viewModel::updatePeriodLength,
                 onCycleLengthChange = viewModel::updateCycleLength,
+                onThemeModeChange = viewModel::updateThemeMode,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
@@ -95,8 +99,10 @@ fun SettingsScreen(
 private fun SettingsContent(
     periodLength: Int,
     cycleLength: Int,
+    themeMode: ThemeMode,
     onPeriodLengthChange: (Int) -> Unit,
     onCycleLengthChange: (Int) -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -105,6 +111,17 @@ private fun SettingsContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // 外观设置卡片
+        SettingsCard(
+            title = "外观",
+            content = {
+                ThemeModeSelector(
+                    currentMode = themeMode,
+                    onModeChange = onThemeModeChange
+                )
+            }
+        )
+
         // 周期设置卡片
         SettingsCard(
             title = "周期设置",
@@ -118,7 +135,7 @@ private fun SettingsContent(
                 )
 
                 HorizontalDivider(
-                    color = DarkSurfaceElevated,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
 
@@ -146,14 +163,14 @@ private fun SettingsCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             content()
@@ -179,12 +196,12 @@ private fun SettingItem(
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -198,7 +215,7 @@ private fun SettingItem(
                     modifier = Modifier
                         .size(36.dp)
                         .background(
-                            color = DarkSurfaceElevated,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(8.dp)
                         )
                 ) {
@@ -227,7 +244,7 @@ private fun SettingItem(
                     modifier = Modifier
                         .size(36.dp)
                         .background(
-                            color = DarkSurfaceElevated,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(8.dp)
                         )
                 ) {
@@ -241,7 +258,7 @@ private fun SettingItem(
                 Text(
                     text = unit,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 4.dp)
                 )
             }
@@ -253,14 +270,14 @@ private fun SettingItem(
 private fun InfoCard() {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "说明",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
@@ -282,7 +299,40 @@ private fun InfoItem(title: String, description: String) {
         Text(
             text = description,
             style = MaterialTheme.typography.bodySmall,
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun ThemeModeSelector(
+    currentMode: ThemeMode,
+    onModeChange: (ThemeMode) -> Unit
+) {
+    val options = listOf(
+        ThemeMode.LIGHT to "浅色",
+        ThemeMode.DARK to "深色",
+        ThemeMode.SYSTEM to "跟随系统"
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        options.forEach { (mode, label) ->
+            val selected = mode == currentMode
+            FilterChip(
+                selected = selected,
+                onClick = { onModeChange(mode) },
+                label = { Text(label) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = PinkPrimary,
+                    selectedLabelColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    labelColor = MaterialTheme.colorScheme.onBackground
+                ),
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }

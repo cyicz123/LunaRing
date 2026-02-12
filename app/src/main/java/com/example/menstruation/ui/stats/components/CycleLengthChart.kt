@@ -12,10 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.menstruation.ui.theme.DarkSurface
 import com.example.menstruation.ui.theme.PinkPrimary
-import com.example.menstruation.ui.theme.TextPrimary
-import com.example.menstruation.ui.theme.TextSecondary
 
 @Composable
 fun CycleLengthChart(
@@ -32,7 +29,7 @@ fun CycleLengthChart(
             Text(
                 text = "暂无数据",
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         return
@@ -46,7 +43,7 @@ fun CycleLengthChart(
         Text(
             text = "周期长度趋势（天）",
             style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -90,7 +87,7 @@ fun CycleLengthChart(
                     Text(
                         text = label,
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
@@ -123,7 +120,7 @@ private fun ReferenceLineItem(color: Color, label: String) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

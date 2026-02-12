@@ -1,6 +1,7 @@
 package com.example.menstruation.data.repository
 
 import com.example.menstruation.data.local.datastore.SettingsDataStore
+import com.example.menstruation.data.model.ThemeMode
 import com.example.menstruation.data.model.UserSettings
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -18,5 +19,9 @@ class SettingsRepository @Inject constructor(
 
     suspend fun updateCycleLength(length: Int) {
         settingsDataStore.updateCycleLength(length)
+    }
+
+    suspend fun updateThemeMode(mode: ThemeMode) {
+        settingsDataStore.updateThemeMode(mode)
     }
 }

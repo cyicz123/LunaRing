@@ -36,6 +36,15 @@ val Success = Color(0xFF34C759)
 val Warning = Color(0xFFFF9500)
 val Error = Color(0xFFFF3B30)
 
+// ===== 浅色主题配色 =====
+val LightBackground = Color(0xFFF8F9FA)
+val LightSurface = Color(0xFFFFFFFF)
+val LightSurfaceElevated = Color(0xFFF2F2F7)
+
+val LightTextPrimary = Color(0xFF1C1C1E)
+val LightTextSecondary = Color(0xFF636366)
+val LightBorderGray = Color(0xFFE5E5EA)
+
 // 保留原有颜色（兼容）
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)

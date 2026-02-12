@@ -2,6 +2,7 @@ package com.example.menstruation.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.menstruation.data.model.ThemeMode
 import com.example.menstruation.data.model.UserSettings
 import com.example.menstruation.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,6 +51,12 @@ class SettingsViewModel @Inject constructor(
     fun updateCycleLength(length: Int) {
         viewModelScope.launch {
             settingsRepository.updateCycleLength(length)
+        }
+    }
+
+    fun updateThemeMode(mode: ThemeMode) {
+        viewModelScope.launch {
+            settingsRepository.updateThemeMode(mode)
         }
     }
 }

@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.menstruation.data.model.Period
-import com.example.menstruation.ui.theme.*
+import com.example.menstruation.ui.theme.PinkPrimary
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -44,7 +44,7 @@ fun PeriodHistorySheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = DarkBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         scrimColor = Color.Black.copy(alpha = 0.6f)
     ) {
         PeriodHistoryContent(
@@ -106,7 +106,7 @@ private fun PeriodHistoryContent(
             Text(
                 text = "选择时间",
                 style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Row {
                 // 日历图标按钮 - 快速回到今天
@@ -120,13 +120,13 @@ private fun PeriodHistoryContent(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(DarkSurface),
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.DateRange,
                             contentDescription = "今天",
-                            tint = TextSecondary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -138,13 +138,13 @@ private fun PeriodHistoryContent(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(DarkSurface),
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "关闭",
-                            tint = TextSecondary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -164,7 +164,7 @@ private fun PeriodHistoryContent(
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -208,7 +208,7 @@ private fun MonthHistoryView(
         Text(
             text = yearMonth.format(DateTimeFormatter.ofPattern("yyyy年M月", Locale.CHINESE)),
             style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp),
@@ -286,7 +286,7 @@ private fun DateCellWithConnector(
         isInPeriod -> Color.White
         isPredictedPeriod -> PinkPrimary
         isToday -> PinkPrimary
-        else -> TextPrimary
+        else -> MaterialTheme.colorScheme.onBackground
     }
 
     Box(

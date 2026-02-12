@@ -15,8 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.menstruation.ui.stats.components.*
-import com.example.menstruation.ui.theme.DarkBackground
-import com.example.menstruation.ui.theme.TextPrimary
+import com.example.menstruation.ui.theme.PinkPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +30,7 @@ fun StatsScreen(
             TopAppBar(
                 title = { Text("统计分析") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkBackground
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
@@ -51,7 +50,7 @@ fun StatsScreen(
                 )
             }
         },
-        containerColor = DarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         StatsContent(
             uiState = uiState,
@@ -72,7 +71,7 @@ private fun StatsContent(
             modifier = modifier.fillMaxSize(),
             contentAlignment = androidx.compose.ui.Alignment.Center
         ) {
-            CircularProgressIndicator(color = com.example.menstruation.ui.theme.PinkPrimary)
+            CircularProgressIndicator(color = PinkPrimary)
         }
         return
     }
@@ -97,7 +96,7 @@ private fun StatsContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    color = com.example.menstruation.ui.theme.DarkSurface,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
                 )
                 .padding(16.dp)

@@ -20,7 +20,8 @@ import androidx.compose.ui.unit.dp
 import com.example.menstruation.data.model.DailyRecord
 import com.example.menstruation.data.model.Period
 import com.example.menstruation.data.model.UserSettings
-import com.example.menstruation.ui.theme.*
+import com.example.menstruation.ui.theme.PinkPrimary
+import com.example.menstruation.ui.theme.PinkDark
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -116,7 +117,7 @@ private fun MonthSelector(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 contentDescription = "上个月",
-                tint = TextPrimary,
+                tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.size(28.dp)
             )
         }
@@ -124,7 +125,7 @@ private fun MonthSelector(
         Text(
             text = selectedMonth.format(DateTimeFormatter.ofPattern("yyyy年M月", Locale.CHINESE)),
             style = MaterialTheme.typography.titleLarge,
-            color = TextPrimary,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.clickable { onTitleClick() }
         )
 
@@ -132,7 +133,7 @@ private fun MonthSelector(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "下个月",
-                tint = TextPrimary,
+                tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.size(28.dp)
             )
         }
@@ -157,7 +158,7 @@ private fun MonthCalendar(
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -241,7 +242,7 @@ private fun DateCell(
                     isInPeriod -> Color.White
                     isPredictedPeriod -> PinkPrimary
                     isToday -> PinkDark
-                    else -> TextPrimary
+                    else -> MaterialTheme.colorScheme.onBackground
                 }
             )
         }
@@ -266,7 +267,7 @@ private fun CalendarLegend() {
             Text(
                 text = "经期",
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -282,7 +283,7 @@ private fun CalendarLegend() {
             Text(
                 text = "预测经期",
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -305,7 +306,7 @@ private fun CycleInfoCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -356,7 +357,7 @@ private fun CycleInfoCard(
                 Text(
                     text = "记录你的第一个经期",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
@@ -367,7 +368,7 @@ private fun CycleInfoCard(
             Text(
                 text = "月经周期的长短取决于卵巢周期的长短，一般为28-32天。记录经期有助于更好地了解自己的身体状况。",
                 style = MaterialTheme.typography.bodySmall,
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
         }
     }
@@ -382,7 +383,7 @@ private fun CycleStat(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(

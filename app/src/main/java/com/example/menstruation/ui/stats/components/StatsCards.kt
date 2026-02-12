@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.menstruation.ui.stats.MoodStat
 import com.example.menstruation.ui.stats.SymptomStat
-import com.example.menstruation.ui.theme.*
+import com.example.menstruation.ui.theme.PinkPrimary
 
 @Composable
 fun AverageStatsCard(
@@ -27,14 +27,14 @@ fun AverageStatsCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "周期统计",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -77,7 +77,7 @@ private fun StatItem(
             Text(
                 text = value,
                 style = MaterialTheme.typography.headlineMedium,
-                color = if (highlight) PinkPrimary else TextPrimary,
+                color = if (highlight) PinkPrimary else MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold
             )
             if (unit.isNotEmpty() && value != "--") {
@@ -85,7 +85,7 @@ private fun StatItem(
                 Text(
                     text = unit,
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
             }
@@ -94,7 +94,7 @@ private fun StatItem(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -106,14 +106,14 @@ fun SymptomStatsCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "常见症状",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -127,7 +127,7 @@ fun SymptomStatsCard(
                     Text(
                         text = "暂无症状记录",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else {
@@ -152,12 +152,12 @@ private fun SymptomProgressBar(stat: SymptomStat) {
             Text(
                 text = stat.symptom.label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 text = "${stat.count}次 (${(stat.percentage * 100).toInt()}%)",
                 style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
@@ -167,7 +167,7 @@ private fun SymptomProgressBar(stat: SymptomStat) {
                 .fillMaxWidth()
                 .height(6.dp)
                 .clip(RoundedCornerShape(3.dp))
-                .background(DarkSurfaceElevated)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             // 进度条前景
             Box(
@@ -188,14 +188,14 @@ fun MoodStatsCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "心情分布",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -209,7 +209,7 @@ fun MoodStatsCard(
                     Text(
                         text = "暂无心情记录",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else {
@@ -240,7 +240,7 @@ private fun MoodItem(stat: MoodStat) {
             Text(
                 text = stat.mood.label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -250,7 +250,7 @@ private fun MoodItem(stat: MoodStat) {
                     .width(60.dp)
                     .height(4.dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(DarkSurfaceElevated)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Box(
                     modifier = Modifier
@@ -264,7 +264,7 @@ private fun MoodItem(stat: MoodStat) {
             Text(
                 text = "${stat.count}次",
                 style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

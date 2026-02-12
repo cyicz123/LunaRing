@@ -39,17 +39,20 @@ private val LightColorScheme = lightColorScheme(
     onPrimaryContainer = PinkDark,
     secondary = PinkDark,
     onSecondary = Color.White,
-    background = Color(0xFFF8F9FA),
-    onBackground = Color(0xFF1C1C1E),
-    surface = Color.White,
-    onSurface = Color(0xFF1C1C1E),
+    background = LightBackground,
+    onBackground = LightTextPrimary,
+    surface = LightSurface,
+    onSurface = LightTextPrimary,
+    surfaceVariant = LightSurfaceElevated,
+    onSurfaceVariant = LightTextSecondary,
+    outline = LightBorderGray,
     error = Error,
     onError = Color.White
 )
 
 @Composable
 fun MenstruationTheme(
-    darkTheme: Boolean = true, // 默认使用深色主题
+    darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false, // 禁用动态颜色
     content: @Composable () -> Unit
 ) {

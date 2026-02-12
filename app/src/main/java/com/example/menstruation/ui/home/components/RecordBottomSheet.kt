@@ -25,7 +25,8 @@ import com.example.menstruation.data.model.Mood
 import com.example.menstruation.data.model.OvulationResult
 import com.example.menstruation.data.model.Symptom
 import com.example.menstruation.data.model.SymptomCategory
-import com.example.menstruation.ui.theme.*
+import com.example.menstruation.ui.theme.PinkPrimary
+import com.example.menstruation.ui.theme.PinkTransparent
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -46,7 +47,7 @@ fun RecordBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = DarkBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         scrimColor = Color.Black.copy(alpha = 0.6f)
     ) {
         RecordBottomSheetContent(
@@ -95,13 +96,13 @@ private fun RecordBottomSheetContent(
             Text(
                 text = date.format(DateTimeFormatter.ofPattern("M月d日 EEEE", Locale.CHINESE)),
                 style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             IconButton(onClick = onDismiss) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "关闭",
-                    tint = TextSecondary
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -217,7 +218,7 @@ private fun PeriodControlCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -244,7 +245,7 @@ private fun PeriodControlCard(
                 Text(
                     text = "经期状态",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
 
@@ -272,10 +273,10 @@ private fun PeriodControlCard(
                         OutlinedButton(
                             onClick = onEndPeriod,
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = TextSecondary
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
                             border = ButtonDefaults.outlinedButtonBorder.copy(
-                                brush = androidx.compose.ui.graphics.SolidColor(BorderGray)
+                                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline)
                             )
                         ) {
                             Text("结束经期")
@@ -306,7 +307,7 @@ private fun FlowCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -315,7 +316,7 @@ private fun FlowCard(
             Text(
                 text = "流量",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(12.dp))
             Row(
@@ -331,11 +332,11 @@ private fun FlowCard(
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = PinkPrimary,
                             selectedLabelColor = Color.White,
-                            containerColor = DarkSurfaceElevated,
-                            labelColor = TextSecondary
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         border = FilterChipDefaults.filterChipBorder(
-                            borderColor = BorderGray,
+                            borderColor = MaterialTheme.colorScheme.outline,
                             selectedBorderColor = PinkPrimary,
                             enabled = true,
                             selected = isSelected
@@ -354,7 +355,7 @@ private fun PainCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -368,7 +369,7 @@ private fun PainCard(
                 Text(
                     text = "疼痛程度",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 if (painLevel > 0) {
                     Text(
@@ -395,7 +396,7 @@ private fun PainCard(
                                     isSelected && level <= 3 -> Color(0xFFFF9500)
                                     isSelected && level <= 6 -> Color(0xFFFF6B35)
                                     isSelected -> Color(0xFFFF3B30)
-                                    else -> DarkSurfaceElevated
+                                    else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                                 }
                             )
                             .clickable { onPainLevelChange(if (painLevel == level) 0 else level) },
@@ -403,7 +404,7 @@ private fun PainCard(
                     ) {
                         Text(
                             text = "$level",
-                            color = if (isSelected) Color.White else TextTertiary,
+                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -420,7 +421,7 @@ private fun SexCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(
@@ -433,7 +434,7 @@ private fun SexCard(
             Text(
                 text = "同房记录",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Switch(
                 checked = hadSex,
@@ -456,7 +457,7 @@ private fun SymptomsCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -465,7 +466,7 @@ private fun SymptomsCard(
             Text(
                 text = "症状",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -473,7 +474,7 @@ private fun SymptomsCard(
                 Text(
                     text = category.label,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
                 // 使用 Column + Row 代替 FlowRow
@@ -500,11 +501,11 @@ private fun SymptomsCard(
                                     colors = FilterChipDefaults.filterChipColors(
                                         selectedContainerColor = PinkPrimary,
                                         selectedLabelColor = Color.White,
-                                        containerColor = DarkSurfaceElevated,
-                                        labelColor = TextSecondary
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                                     ),
                                     border = FilterChipDefaults.filterChipBorder(
-                                        borderColor = BorderGray,
+                                        borderColor = MaterialTheme.colorScheme.outline,
                                         selectedBorderColor = PinkPrimary,
                                         enabled = true,
                                         selected = isSelected
@@ -528,7 +529,7 @@ private fun MoodCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -537,7 +538,7 @@ private fun MoodCard(
             Text(
                 text = "心情",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(12.dp))
             // 使用 Column + Row 代替 FlowRow
@@ -565,11 +566,11 @@ private fun MoodCard(
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = PinkPrimary,
                                     selectedLabelColor = Color.White,
-                                    containerColor = DarkSurfaceElevated,
-                                    labelColor = TextSecondary
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 ),
                                 border = FilterChipDefaults.filterChipBorder(
-                                    borderColor = BorderGray,
+                                    borderColor = MaterialTheme.colorScheme.outline,
                                     selectedBorderColor = PinkPrimary,
                                     enabled = true,
                                     selected = isSelected
@@ -591,7 +592,7 @@ private fun OvulationCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -600,7 +601,7 @@ private fun OvulationCard(
             Text(
                 text = "排卵试纸",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(12.dp))
             Row(
@@ -616,11 +617,11 @@ private fun OvulationCard(
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = PinkPrimary,
                             selectedLabelColor = Color.White,
-                            containerColor = DarkSurfaceElevated,
-                            labelColor = TextSecondary
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         border = FilterChipDefaults.filterChipBorder(
-                            borderColor = BorderGray,
+                            borderColor = MaterialTheme.colorScheme.outline,
                             selectedBorderColor = PinkPrimary,
                             enabled = true,
                             selected = isSelected
@@ -639,7 +640,7 @@ private fun NoteCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -648,23 +649,23 @@ private fun NoteCard(
             Text(
                 text = "备注",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
                 value = note,
                 onValueChange = onNoteChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("添加备注...", color = TextTertiary) },
+                placeholder = { Text("添加备注...", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)) },
                 minLines = 3,
                 maxLines = 5,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = DarkSurfaceElevated,
-                    unfocusedContainerColor = DarkSurfaceElevated,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                     focusedBorderColor = PinkPrimary,
-                    unfocusedBorderColor = BorderGray,
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = RoundedCornerShape(12.dp)
             )
