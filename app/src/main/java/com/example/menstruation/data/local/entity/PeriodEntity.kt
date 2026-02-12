@@ -1,0 +1,13 @@
+package com.example.menstruation.data.local.entity
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import java.time.LocalDate
+
+@Entity(tableName = "periods")
+data class PeriodEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val startDate: LocalDate,
+    val endDate: LocalDate? = null
+)
