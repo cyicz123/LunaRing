@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.menstruation.ui.home.HomeScreen
+import androidx.navigation.compose.rememberNavController
+import com.example.menstruation.ui.navigation.NavGraph
 import com.example.menstruation.ui.theme.MenstruationTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +16,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MenstruationTheme {
-                HomeScreen()
+                val navController = rememberNavController()
+                NavGraph(navController = navController)
             }
         }
     }
