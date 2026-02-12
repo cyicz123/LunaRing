@@ -13,53 +13,47 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = PinkPrimary,
-    secondary = PinkDark,
-    tertiary = PinkAccent,
-    background = TextPrimary,
-    surface = TextPrimary.copy(alpha = 0.9f),
-    onPrimary = TextPrimary,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = PinkLighter,
-    onSurface = PinkLighter,
+    onPrimary = Color.White,
     primaryContainer = PinkDark,
-    secondaryContainer = PinkAccent,
-    onPrimaryContainer = Color.White
+    onPrimaryContainer = Color.White,
+    secondary = PinkLight,
+    onSecondary = Color.White,
+    tertiary = PinkLight,
+    onTertiary = Color.White,
+    background = DarkBackground,
+    onBackground = TextPrimary,
+    surface = DarkSurface,
+    onSurface = TextPrimary,
+    surfaceVariant = DarkSurfaceElevated,
+    onSurfaceVariant = TextSecondary,
+    outline = BorderGray,
+    error = Error,
+    onError = Color.White
 )
 
+// 浅色主题（备用）
 private val LightColorScheme = lightColorScheme(
     primary = PinkPrimary,
-    secondary = PinkDark,
-    tertiary = PinkAccent,
-    background = PinkLighter,
-    surface = Surface,
-    onPrimary = TextPrimary,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = TextPrimary,
-    onSurface = TextPrimary,
+    onPrimary = Color.White,
     primaryContainer = PinkLight,
-    secondaryContainer = PinkDark,
-    onPrimaryContainer = TextPrimary,
-    error = Error
+    onPrimaryContainer = PinkDark,
+    secondary = PinkDark,
+    onSecondary = Color.White,
+    background = Color(0xFFF8F9FA),
+    onBackground = Color(0xFF1C1C1E),
+    surface = Color.White,
+    onSurface = Color(0xFF1C1C1E),
+    error = Error,
+    onError = Color.White
 )
 
 @Composable
 fun MenstruationTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    darkTheme: Boolean = true, // 默认使用深色主题
+    dynamicColor: Boolean = false, // 禁用动态颜色
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

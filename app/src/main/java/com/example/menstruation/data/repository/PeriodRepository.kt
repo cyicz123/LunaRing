@@ -23,10 +23,13 @@ class PeriodRepository @Inject constructor(
     suspend fun getCurrentPeriod(): Period? =
         periodDao.getCurrentPeriod()?.let { Period.fromEntity(it) }
 
-    suspend fun startPeriod(date: LocalDate): Long {
+    suspend fun startPeriod(date: LocalDate, periodLength: Int): Long {
+        // 根据设置的经期长度自动计算结束时间
+        val endDate = date.plusDays((periodLength - 1).toLong())
         return periodDao.insert(
             com.example.menstruation.data.local.entity.PeriodEntity(
-                startDate = date
+                startDate = date,
+                endDate = endDate
             )
         )
     }
