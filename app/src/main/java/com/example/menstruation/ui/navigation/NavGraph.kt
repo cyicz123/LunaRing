@@ -5,11 +5,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.menstruation.ui.home.HomeScreen
+import com.example.menstruation.ui.settings.SettingsScreen
 import com.example.menstruation.ui.stats.StatsScreen
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Stats : Screen("stats")
+    object Settings : Screen("settings")
 }
 
 @Composable
@@ -22,6 +24,9 @@ fun NavGraph(navController: NavHostController) {
             HomeScreen(
                 onNavigateToStats = {
                     navController.navigate(Screen.Stats.route)
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
                 }
             )
         }
@@ -31,6 +36,24 @@ fun NavGraph(navController: NavHostController) {
                 onNavigateToHome = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.Settings.route) {
+            SettingsScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateToStats = {
+                    navController.navigate(Screen.Stats.route) {
+                        popUpTo(Screen.Home.route)
                     }
                 }
             )
