@@ -8,7 +8,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+// import androidx.compose.material.icons.filled.AccessTime  // 不可用，使用DateRange代替
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -23,6 +25,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.menstruation.data.model.NotificationSettings
+import com.example.menstruation.data.model.ReminderTime
 import com.example.menstruation.data.model.ThemeMode
 import com.example.menstruation.ui.theme.PinkPrimary
 
@@ -88,9 +92,18 @@ fun SettingsScreen(
                 periodLength = uiState.settings.periodLength,
                 cycleLength = uiState.settings.cycleLength,
                 themeMode = uiState.settings.themeMode,
+                notificationSettings = uiState.settings.notificationSettings,
+                showTimePicker = uiState.showTimePicker,
                 onPeriodLengthChange = viewModel::updatePeriodLength,
                 onCycleLengthChange = viewModel::updateCycleLength,
                 onThemeModeChange = viewModel::updateThemeMode,
+                onNotificationEnabledChange = viewModel::updateNotificationEnabled,
+                onPeriodStartReminderChange = viewModel::updatePeriodStartReminder,
+                onPeriodEndReminderChange = viewModel::updatePeriodEndReminder,
+                onPredictedPeriodReminderChange = viewModel::updatePredictedPeriodReminder,
+                onReminderTimeChange = viewModel::updateReminderTime,
+                onShowTimePicker = viewModel::showTimePicker,
+                onHideTimePicker = viewModel::hideTimePicker,
                 onExportClick = onExportClick,
                 onImportClick = onImportClick,
                 modifier = Modifier
@@ -106,9 +119,18 @@ private fun SettingsContent(
     periodLength: Int,
     cycleLength: Int,
     themeMode: ThemeMode,
+    notificationSettings: NotificationSettings,
+    showTimePicker: Boolean,
     onPeriodLengthChange: (Int) -> Unit,
     onCycleLengthChange: (Int) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
+    onNotificationEnabledChange: (Boolean) -> Unit,
+    onPeriodStartReminderChange: (Boolean) -> Unit,
+    onPeriodEndReminderChange: (Boolean) -> Unit,
+    onPredictedPeriodReminderChange: (Boolean) -> Unit,
+    onReminderTimeChange: (Int, Int) -> Unit,
+    onShowTimePicker: () -> Unit,
+    onHideTimePicker: () -> Unit,
     onExportClick: () -> Unit,
     onImportClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -128,6 +150,16 @@ private fun SettingsContent(
                     onModeChange = onThemeModeChange
                 )
             }
+        )
+
+        // 通知设置卡片
+        NotificationSettingsCard(
+            notificationSettings = notificationSettings,
+            onNotificationEnabledChange = onNotificationEnabledChange,
+            onPeriodStartReminderChange = onPeriodStartReminderChange,
+            onPeriodEndReminderChange = onPeriodEndReminderChange,
+            onPredictedPeriodReminderChange = onPredictedPeriodReminderChange,
+            onShowTimePicker = onShowTimePicker
         )
 
         // 周期设置卡片
@@ -168,6 +200,256 @@ private fun SettingsContent(
 
         Spacer(modifier = Modifier.height(32.dp))
     }
+
+    // 时间选择器对话框
+    if (showTimePicker) {
+        ReminderTimePickerDialog(
+            currentTime = notificationSettings.reminderTime,
+            onTimeSelected = onReminderTimeChange,
+            onDismiss = onHideTimePicker
+        )
+    }
+}
+
+@Composable
+private fun NotificationSettingsCard(
+    notificationSettings: NotificationSettings,
+    onNotificationEnabledChange: (Boolean) -> Unit,
+    onPeriodStartReminderChange: (Boolean) -> Unit,
+    onPeriodEndReminderChange: (Boolean) -> Unit,
+    onPredictedPeriodReminderChange: (Boolean) -> Unit,
+    onShowTimePicker: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = null,
+                        tint = PinkPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = "通知提醒",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+
+                Switch(
+                    checked = notificationSettings.enabled,
+                    onCheckedChange = onNotificationEnabledChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = PinkPrimary,
+                        checkedTrackColor = PinkPrimary.copy(alpha = 0.5f)
+                    )
+                )
+            }
+
+            if (notificationSettings.enabled) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 提醒时间选择
+                ReminderTimeSelector(
+                    reminderTime = notificationSettings.reminderTime,
+                    onClick = onShowTimePicker
+                )
+
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+
+                // 经期开始提醒
+                NotificationToggleItem(
+                    label = "经期开始提醒",
+                    description = "在经期开始时发送通知",
+                    checked = notificationSettings.periodStartReminder,
+                    onCheckedChange = onPeriodStartReminderChange
+                )
+
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+
+                // 经期结束提醒
+                NotificationToggleItem(
+                    label = "经期结束提醒",
+                    description = "在经期结束时发送通知",
+                    checked = notificationSettings.periodEndReminder,
+                    onCheckedChange = onPeriodEndReminderChange
+                )
+
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+
+                // 预测经期提醒
+                NotificationToggleItem(
+                    label = "预测经期提醒",
+                    description = "在预测经期到来前发送通知",
+                    checked = notificationSettings.predictedPeriodReminder,
+                    onCheckedChange = onPredictedPeriodReminderChange
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReminderTimeSelector(
+    reminderTime: ReminderTime,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "提醒时间",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = "每天发送提醒的时间",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        OutlinedButton(
+            onClick = onClick,
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = PinkPrimary
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.DateRange,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = reminderTime.toString(),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun NotificationToggleItem(
+    label: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = PinkPrimary,
+                checkedTrackColor = PinkPrimary.copy(alpha = 0.5f)
+            )
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ReminderTimePickerDialog(
+    currentTime: ReminderTime,
+    onTimeSelected: (Int, Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime.hour,
+        initialMinute = currentTime.minute,
+        is24Hour = true
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "选择提醒时间",
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                TimePicker(
+                    state = timePickerState,
+                    colors = TimePickerDefaults.colors(
+                        selectorColor = PinkPrimary,
+                        clockDialColor = MaterialTheme.colorScheme.surfaceVariant,
+                        clockDialSelectedContentColor = Color.White,
+                        clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
+                        periodSelectorBorderColor = PinkPrimary,
+                        periodSelectorSelectedContainerColor = PinkPrimary,
+                        periodSelectorUnselectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        timeSelectorSelectedContainerColor = PinkPrimary,
+                        timeSelectorUnselectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        timeSelectorSelectedContentColor = Color.White,
+                        timeSelectorUnselectedContentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onTimeSelected(timePickerState.hour, timePickerState.minute)
+                    onDismiss()
+                }
+            ) {
+                Text("确定", color = PinkPrimary)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    )
 }
 
 @Composable

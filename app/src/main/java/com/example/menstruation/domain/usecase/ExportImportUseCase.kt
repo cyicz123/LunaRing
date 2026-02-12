@@ -120,6 +120,7 @@ class ExportImportUseCase @Inject constructor(
                 settingsRepository.updatePeriodLength(settings.periodLength)
                 settingsRepository.updateCycleLength(settings.cycleLength)
                 settingsRepository.updateThemeMode(settings.themeMode)
+                settingsRepository.updateNotificationSettings(settings.notificationSettings)
             } catch (e: Exception) {
                 errors.add("导入设置失败: ${e.message}")
             }

@@ -20,7 +20,17 @@ data class ExportData(
 data class ExportSettings(
     val periodLength: Int,
     val cycleLength: Int,
-    val themeMode: String = "DARK"
+    val themeMode: String = "DARK",
+    val notificationSettings: ExportNotificationSettings? = null
+)
+
+@Serializable
+data class ExportNotificationSettings(
+    val enabled: Boolean = true,
+    val periodStartReminder: Boolean = true,
+    val periodEndReminder: Boolean = true,
+    val predictedPeriodReminder: Boolean = true,
+    val reminderTime: String = "09:00"
 )
 
 @Serializable
@@ -46,8 +56,18 @@ data class ExportDailyRecord(
 fun UserSettings.toExportSettings(): ExportSettings = ExportSettings(
     periodLength = periodLength,
     cycleLength = cycleLength,
-    themeMode = themeMode.name
+    themeMode = themeMode.name,
+    notificationSettings = notificationSettings.toExportNotificationSettings()
 )
+
+fun NotificationSettings.toExportNotificationSettings(): ExportNotificationSettings =
+    ExportNotificationSettings(
+        enabled = enabled,
+        periodStartReminder = periodStartReminder,
+        periodEndReminder = periodEndReminder,
+        predictedPeriodReminder = predictedPeriodReminder,
+        reminderTime = reminderTime.toString()
+    )
 
 fun Period.toExportPeriod(): ExportPeriod = ExportPeriod(
     startDate = startDate.toString(),
@@ -74,8 +94,18 @@ fun ExportSettings.toUserSettings(): UserSettings = UserSettings(
         ThemeMode.valueOf(themeMode)
     } catch (e: IllegalArgumentException) {
         ThemeMode.DARK
-    }
+    },
+    notificationSettings = notificationSettings?.toNotificationSettings() ?: NotificationSettings()
 )
+
+fun ExportNotificationSettings.toNotificationSettings(): NotificationSettings =
+    NotificationSettings(
+        enabled = enabled,
+        periodStartReminder = periodStartReminder,
+        periodEndReminder = periodEndReminder,
+        predictedPeriodReminder = predictedPeriodReminder,
+        reminderTime = ReminderTime.fromString(reminderTime)
+    )
 
 fun ExportPeriod.toPeriod(): Period = Period(
     startDate = LocalDate.parse(startDate),

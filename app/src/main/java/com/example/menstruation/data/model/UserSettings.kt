@@ -7,5 +7,6 @@ enum class ThemeMode {
 data class UserSettings(
     val periodLength: Int,
     val cycleLength: Int,
-    val themeMode: ThemeMode = ThemeMode.DARK
+    val themeMode: ThemeMode = ThemeMode.DARK,
+    val notificationSettings: NotificationSettings = NotificationSettings()
 )
