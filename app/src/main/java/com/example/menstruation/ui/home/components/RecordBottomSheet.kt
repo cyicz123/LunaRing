@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -81,6 +82,9 @@ private fun RecordBottomSheetContent(
     var ovulationResult by remember { mutableStateOf(record?.ovulationTest) }
     var note by remember { mutableStateOf(record?.note ?: "") }
 
+    // 检查是否是未来日期
+    val isFutureDate = date.isAfter(LocalDate.now())
+
     Column(
         modifier = Modifier
             .fillMaxHeight(0.85f)
@@ -112,6 +116,7 @@ private fun RecordBottomSheetContent(
         // 经期控制卡片
         PeriodControlCard(
             isInPeriod = isInPeriod,
+            isFutureDate = isFutureDate,
             onStartPeriod = onStartPeriod,
             onEndPeriod = onEndPeriod
         )
@@ -213,6 +218,7 @@ private fun RecordBottomSheetContent(
 @Composable
 private fun PeriodControlCard(
     isInPeriod: Boolean,
+    isFutureDate: Boolean,
     onStartPeriod: () -> Unit,
     onEndPeriod: () -> Unit
 ) {
@@ -281,6 +287,26 @@ private fun PeriodControlCard(
                         ) {
                             Text("结束经期")
                         }
+                    }
+                }
+                isFutureDate -> {
+                    // 未来日期显示提示
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "未来的日子不能记录哦",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
                 else -> {
