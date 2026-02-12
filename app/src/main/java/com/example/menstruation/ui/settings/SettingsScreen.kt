@@ -1,5 +1,6 @@
 package com.example.menstruation.ui.settings
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -24,14 +25,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.menstruation.MainActivity
 import com.example.menstruation.data.model.NotificationSettings
 import com.example.menstruation.data.model.ReminderTime
 import com.example.menstruation.data.model.ThemeMode
+import com.example.menstruation.notification.NotificationPermissionHelper
 import com.example.menstruation.ui.theme.PinkPrimary
+import com.example.menstruation.ui.theme.PinkTransparent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +51,8 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showResetConfirmDialog by remember { mutableStateOf(false) }
+    var showNotifRationale by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -102,7 +109,16 @@ fun SettingsScreen(
                 onPeriodLengthChange = viewModel::updatePeriodLength,
                 onCycleLengthChange = viewModel::updateCycleLength,
                 onThemeModeChange = viewModel::updateThemeMode,
-                onNotificationEnabledChange = viewModel::updateNotificationEnabled,
+                onNotificationEnabledChange = { enabled ->
+                    val hasPerm = NotificationPermissionHelper.hasNotificationPermission(context)
+                    if (enabled && Build.VERSION.SDK_INT >= 33 && !hasPerm) {
+                        showNotifRationale = true
+                        // Keep switch OFF until permission granted.
+                        viewModel.updateNotificationEnabled(false)
+                    } else {
+                        viewModel.updateNotificationEnabled(enabled)
+                    }
+                },
                 onPeriodStartReminderChange = viewModel::updatePeriodStartReminder,
                 onPeriodEndReminderChange = viewModel::updatePeriodEndReminder,
                 onPredictedPeriodReminderChange = viewModel::updatePredictedPeriodReminder,
@@ -117,6 +133,23 @@ fun SettingsScreen(
                     .padding(padding)
             )
         }
+    }
+
+    if (showNotifRationale) {
+        NotificationPermissionRationaleSheetForSettings(
+            onEnable = {
+                showNotifRationale = false
+                (context as? MainActivity)?.requestPostNotificationsPermissionFromUi()
+            },
+            onLater = {
+                showNotifRationale = false
+                viewModel.updateNotificationEnabled(false)
+            },
+            onDismiss = {
+                showNotifRationale = false
+                viewModel.updateNotificationEnabled(false)
+            }
+        )
     }
 
     if (showResetConfirmDialog) {
@@ -142,6 +175,86 @@ fun SettingsScreen(
                 }
             }
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NotificationPermissionRationaleSheetForSettings(
+    onEnable: () -> Unit,
+    onLater: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Notifications,
+                contentDescription = null,
+                tint = PinkPrimary,
+                modifier = Modifier.size(28.dp)
+            )
+            Text(
+                text = "开启通知提醒",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = "用于经期开始/结束提醒，以及预测经期提醒。你可以随时在设置里关闭。",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = PinkTransparent),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "我们会在这些时刻通知你：",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = "• 经期开始 / 结束\n• 预测经期到来前 1 天",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Button(
+                onClick = onEnable,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = PinkPrimary),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("开启通知")
+            }
+            OutlinedButton(
+                onClick = onLater,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("暂不")
+            }
+        }
     }
 }
 

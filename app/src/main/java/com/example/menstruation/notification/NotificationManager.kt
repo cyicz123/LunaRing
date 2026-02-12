@@ -37,6 +37,12 @@ class NotificationScheduler @Inject constructor(
         periodEndReminder: Boolean,
         predictedPeriodReminder: Boolean
     ) {
+        // Do not schedule when notification permission is not granted (Android 13+) or notifications disabled by system.
+        if (!NotificationPermissionHelper.hasNotificationPermission(context)) {
+            cancelAllNotifications()
+            return
+        }
+
         if (!enabled) {
             cancelAllNotifications()
             return
