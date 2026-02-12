@@ -67,11 +67,19 @@ fun HomeScreen(
         CalendarView(
             records = uiState.records,
             periods = uiState.periods,
-            predictedPeriod = uiState.predictedPeriod,
+            predictedPeriods = uiState.predictedPeriods,
             settings = uiState.settings,
             currentDate = LocalDate.now(),
-            onDateClick = { selectedDate = it },
-            onMonthChange = { },
+            onDateClick = {
+                viewModel.ensurePredictionsCover(it.plusMonths(3))
+                selectedDate = it
+            },
+            onMonthChange = { month ->
+                viewModel.onVisibleMonthChanged(month)
+            },
+            onJumpToDate = { date ->
+                viewModel.ensurePredictionsCover(date.plusMonths(3))
+            },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
@@ -84,7 +92,7 @@ fun HomeScreen(
                 // 未来日期：显示预测信息面板
                 FutureDatePredictionPanel(
                     selectedDate = date,
-                    predictedPeriod = uiState.predictedPeriod,
+                    predictedPeriods = uiState.predictedPeriods,
                     cycleLength = uiState.settings.cycleLength,
                     periodLength = uiState.settings.periodLength,
                     onDismiss = { selectedDate = null }
@@ -117,21 +125,25 @@ fun HomeScreen(
 @Composable
 private fun FutureDatePredictionPanel(
     selectedDate: LocalDate,
-    predictedPeriod: Pair<LocalDate, LocalDate>?,
+    predictedPeriods: List<Pair<LocalDate, LocalDate>>,
     cycleLength: Int,
     periodLength: Int,
     onDismiss: () -> Unit
 ) {
     val today = LocalDate.now()
     val daysUntilSelected = ChronoUnit.DAYS.between(today, selectedDate).toInt()
+    val targetPrediction = findClosestPredictionWindow(selectedDate, predictedPeriods)
 
-    // 计算距离下次经期的天数
-    val daysUntilNextPeriod = predictedPeriod?.first?.let {
+    // 计算距离最近预测经期的天数
+    val daysUntilNextFromSelected = targetPrediction?.first?.let {
+        ChronoUnit.DAYS.between(selectedDate, it).toInt()
+    }
+    val daysUntilNextFromToday = targetPrediction?.first?.let {
         ChronoUnit.DAYS.between(today, it).toInt()
     }
 
     // 判断选中日期在哪个阶段
-    val phaseInfo = calculatePhaseInfo(selectedDate, predictedPeriod, cycleLength, periodLength)
+    val phaseInfo = calculatePhaseInfo(selectedDate, targetPrediction)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -237,7 +249,7 @@ private fun FutureDatePredictionPanel(
                         .padding(16.dp)
                 ) {
                     // 预测经期信息
-                    predictedPeriod?.let { (start, end) ->
+                    targetPrediction?.let { (start, end) ->
                         InfoRow(
                             label = "预测下次经期",
                             value = "${start.monthValue}月${start.dayOfMonth}日 - ${end.monthValue}月${end.dayOfMonth}日"
@@ -245,12 +257,20 @@ private fun FutureDatePredictionPanel(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        daysUntilNextPeriod?.let { days ->
+                        daysUntilNextFromSelected?.let { days ->
                             InfoRow(
-                                label = "距离下次经期",
-                                value = if (days > 0) "还有${days}天" else if (days == 0) "今天开始" else "已开始"
+                                label = "距所选日期的下次经期",
+                                value = if (days > 0) "还有${days}天" else if (days == 0) "当天开始" else "进行中"
                             )
 
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
+                        daysUntilNextFromToday?.let { days ->
+                            InfoRow(
+                                label = "距离最近经期",
+                                value = if (days > 0) "还有${days}天" else if (days == 0) "今天开始" else "已开始"
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
@@ -292,22 +312,18 @@ private fun FutureDatePredictionPanel(
  */
 private fun calculatePhaseInfo(
     selectedDate: LocalDate,
-    predictedPeriod: Pair<LocalDate, LocalDate>?,
-    cycleLength: Int,
-    periodLength: Int
+    targetPrediction: Pair<LocalDate, LocalDate>?
 ): Pair<String, String> {
-    val today = LocalDate.now()
-
     return when {
-        predictedPeriod == null -> {
+        targetPrediction == null -> {
             "周期信息不足" to "记录更多经期数据以获得准确预测"
         }
-        selectedDate >= predictedPeriod.first && selectedDate <= predictedPeriod.second -> {
+        selectedDate >= targetPrediction.first && selectedDate <= targetPrediction.second -> {
             "预测经期期间" to "预计月经将在这一天到来"
         }
         else -> {
             // 计算是否在排卵期（下次经期前14天左右）
-            val ovulationDate = predictedPeriod.first.minusDays(14)
+            val ovulationDate = targetPrediction.first.minusDays(14)
             val ovulationStart = ovulationDate.minusDays(3)
             val ovulationEnd = ovulationDate.plusDays(3)
 
@@ -315,7 +331,7 @@ private fun calculatePhaseInfo(
                 selectedDate in ovulationStart..ovulationEnd -> {
                     "排卵期" to "受孕几率较高的时期"
                 }
-                selectedDate < predictedPeriod.first -> {
+                selectedDate < targetPrediction.first -> {
                     "卵泡期" to "月经周期中的准备阶段"
                 }
                 else -> {
@@ -324,6 +340,23 @@ private fun calculatePhaseInfo(
             }
         }
     }
+}
+
+private fun findClosestPredictionWindow(
+    selectedDate: LocalDate,
+    predictedPeriods: List<Pair<LocalDate, LocalDate>>
+): Pair<LocalDate, LocalDate>? {
+    if (predictedPeriods.isEmpty()) return null
+
+    val activeWindow = predictedPeriods.firstOrNull { (start, end) ->
+        selectedDate >= start && selectedDate <= end
+    }
+    if (activeWindow != null) return activeWindow
+
+    val nextWindow = predictedPeriods.firstOrNull { (start, _) ->
+        !start.isBefore(selectedDate)
+    }
+    return nextWindow ?: predictedPeriods.lastOrNull()
 }
 
 /**

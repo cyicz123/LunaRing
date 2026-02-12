@@ -15,9 +15,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.YearMonth
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,6 +30,9 @@ class HomeViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private val predictionCoverageEndDate = MutableStateFlow(
+        LocalDate.now().plusMonths(INITIAL_PREDICTION_MONTHS.toLong())
+    )
 
     init {
         loadData()
@@ -39,20 +42,28 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 periodRepository.getAllPeriods(),
-                settingsRepository.settings
-            ) { periods, settings ->
+                settingsRepository.settings,
+                predictionCoverageEndDate
+            ) { periods, settings, coverageEndDate ->
                 // 预测完整的经期窗口（开始和结束日期）
                 val predictedWindow = predictUseCase.predictPeriodWindow(
                     periods,
                     settings.cycleLength,
                     settings.periodLength
                 )
-                Triple(periods, settings, predictedWindow)
-            }.collectLatest { (periods, settings, predictedWindow) ->
+                val futurePredictions = predictUseCase.predictFuturePeriodsUntil(
+                    periods = periods,
+                    cycleLengthSetting = settings.cycleLength,
+                    periodLengthSetting = settings.periodLength,
+                    endDate = coverageEndDate
+                )
+                Quadruple(periods, settings, predictedWindow, futurePredictions)
+            }.collectLatest { (periods, settings, predictedWindow, futurePredictions) ->
                 _uiState.value = _uiState.value.copy(
                     periods = periods,
                     settings = settings,
-                    predictedPeriod = predictedWindow
+                    predictedPeriod = predictedWindow ?: futurePredictions.firstOrNull(),
+                    predictedPeriods = futurePredictions
                 )
             }
         }
@@ -95,5 +106,29 @@ class HomeViewModel @Inject constructor(
         return _uiState.value.periods.any { period ->
             !date.isBefore(period.startDate) && (period.endDate == null || !date.isAfter(period.endDate))
         }
+    }
+
+    fun onVisibleMonthChanged(month: YearMonth) {
+        val targetCoverage = month.atEndOfMonth().plusMonths(PREDICTION_BUFFER_MONTHS.toLong())
+        ensurePredictionsCover(targetCoverage)
+    }
+
+    fun ensurePredictionsCover(date: LocalDate) {
+        val currentCoverage = predictionCoverageEndDate.value
+        if (date.isAfter(currentCoverage)) {
+            predictionCoverageEndDate.value = date
+        }
+    }
+
+    private data class Quadruple<A, B, C, D>(
+        val first: A,
+        val second: B,
+        val third: C,
+        val fourth: D
+    )
+
+    companion object {
+        private const val INITIAL_PREDICTION_MONTHS = 12
+        private const val PREDICTION_BUFFER_MONTHS = 3
     }
 }

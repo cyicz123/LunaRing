@@ -7,6 +7,7 @@ import com.example.menstruation.data.model.NotificationSettings
 import com.example.menstruation.data.model.ReminderTime
 import com.example.menstruation.data.model.ThemeMode
 import com.example.menstruation.data.model.UserSettings
+import com.example.menstruation.data.repository.DailyRecordRepository
 import com.example.menstruation.data.repository.PeriodRepository
 import com.example.menstruation.data.repository.SettingsRepository
 import com.example.menstruation.domain.usecase.ExportImportUseCase
@@ -40,6 +41,7 @@ sealed class SettingsEvent {
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
+    private val dailyRecordRepository: DailyRecordRepository,
     private val periodRepository: PeriodRepository,
     private val exportImportUseCase: ExportImportUseCase,
     private val notificationScheduler: NotificationScheduler
@@ -184,5 +186,19 @@ class SettingsViewModel @Inject constructor(
 
     fun generateExportFileName(): String {
         return exportImportUseCase.generateExportFileName()
+    }
+
+    fun resetRecordsData() {
+        viewModelScope.launch {
+            runCatching {
+                dailyRecordRepository.deleteAllRecords()
+                periodRepository.deleteAllPeriods()
+                notificationScheduler.cancelAllNotifications()
+            }.onSuccess {
+                _events.emit(SettingsEvent.ShowMessage("重置成功：已清空经期与每日记录"))
+            }.onFailure { error ->
+                _events.emit(SettingsEvent.ShowMessage("重置失败：${error.message ?: "请稍后重试"}"))
+            }
+        }
     }
 }

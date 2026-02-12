@@ -7,6 +7,8 @@ import com.example.menstruation.data.model.Period
 import com.example.menstruation.data.model.Symptom
 import com.example.menstruation.data.repository.DailyRecordRepository
 import com.example.menstruation.data.repository.PeriodRepository
+import com.example.menstruation.data.repository.SettingsRepository
+import com.example.menstruation.domain.usecase.PredictNextPeriodUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,7 +45,9 @@ data class MoodStat(
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     private val periodRepository: PeriodRepository,
-    private val dailyRecordRepository: DailyRecordRepository
+    private val dailyRecordRepository: DailyRecordRepository,
+    private val settingsRepository: SettingsRepository,
+    private val predictNextPeriodUseCase: PredictNextPeriodUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StatsUiState())
@@ -59,12 +63,13 @@ class StatsViewModel @Inject constructor(
 
             combine(
                 periodRepository.getAllPeriods(),
-                dailyRecordRepository.getAllRecords()
-            ) { periods, records ->
+                dailyRecordRepository.getAllRecords(),
+                settingsRepository.settings
+            ) { periods, records, settings ->
                 val sortedPeriods = periods.sortedBy { it.startDate }
 
                 // 计算周期长度趋势
-                val cycleLengths = calculateCycleLengths(sortedPeriods)
+                val cycleLengths = calculateCycleLengths(sortedPeriods, settings.cycleLength)
 
                 // 计算平均周期长度
                 val avgCycle = if (cycleLengths.isNotEmpty()) {
@@ -126,13 +131,15 @@ class StatsViewModel @Inject constructor(
         }
     }
 
-    private fun calculateCycleLengths(periods: List<Period>): List<Pair<Int, String>> {
+    private fun calculateCycleLengths(periods: List<Period>, cycleLengthSetting: Int): List<Pair<Int, String>> {
         if (periods.size < 2) return emptyList()
 
         return periods.zipWithNext { a, b ->
             val length = ChronoUnit.DAYS.between(a.startDate, b.startDate).toInt()
             val label = "${b.startDate.monthValue}月"
             length to label
-        }.filter { it.first > 0 && it.first < 60 } // 过滤异常值
+        }.filter { (length, _) ->
+            predictNextPeriodUseCase.isPlausibleCycleLength(length, cycleLengthSetting)
+        }
     }
 }

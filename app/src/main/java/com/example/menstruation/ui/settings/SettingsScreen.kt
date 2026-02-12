@@ -18,6 +18,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,9 +41,11 @@ fun SettingsScreen(
     onNavigateToHome: () -> Unit = {},
     onNavigateToStats: () -> Unit = {},
     onExportClick: () -> Unit = {},
-    onImportClick: () -> Unit = {}
+    onImportClick: () -> Unit = {},
+    onResetDataClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showResetConfirmDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -106,11 +111,37 @@ fun SettingsScreen(
                 onHideTimePicker = viewModel::hideTimePicker,
                 onExportClick = onExportClick,
                 onImportClick = onImportClick,
+                onResetDataClick = { showResetConfirmDialog = true },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             )
         }
+    }
+
+    if (showResetConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirmDialog = false },
+            title = { Text("确认重置数据") },
+            text = {
+                Text("将清空经期记录和每日记录，设置项不会重置。此操作不可撤销。")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showResetConfirmDialog = false
+                        onResetDataClick()
+                    }
+                ) {
+                    Text("确认重置", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetConfirmDialog = false }) {
+                    Text("取消")
+                }
+            }
+        )
     }
 }
 
@@ -133,6 +164,7 @@ private fun SettingsContent(
     onHideTimePicker: () -> Unit,
     onExportClick: () -> Unit,
     onImportClick: () -> Unit,
+    onResetDataClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -192,7 +224,8 @@ private fun SettingsContent(
         // 数据管理卡片
         DataManagementCard(
             onExportClick = onExportClick,
-            onImportClick = onImportClick
+            onImportClick = onImportClick,
+            onResetDataClick = onResetDataClick
         )
 
         // 说明卡片
@@ -565,7 +598,8 @@ private fun SettingItem(
 @Composable
 private fun DataManagementCard(
     onExportClick: () -> Unit,
-    onImportClick: () -> Unit
+    onImportClick: () -> Unit,
+    onResetDataClick: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -617,6 +651,19 @@ private fun DataManagementCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("导入数据")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = onResetDataClick,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("重置数据")
             }
 
             Spacer(modifier = Modifier.height(8.dp))

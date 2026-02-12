@@ -33,7 +33,7 @@ import java.util.Locale
 @Composable
 fun PeriodHistorySheet(
     periods: List<Period>,
-    predictedPeriod: Pair<LocalDate, LocalDate>?,
+    predictedPeriods: List<Pair<LocalDate, LocalDate>>,
     cycleLength: Int,
     periodLength: Int,
     onDismiss: () -> Unit,
@@ -49,7 +49,7 @@ fun PeriodHistorySheet(
     ) {
         PeriodHistoryContent(
             periods = periods,
-            predictedPeriod = predictedPeriod,
+            predictedPeriods = predictedPeriods,
             cycleLength = cycleLength,
             periodLength = periodLength,
             onDismiss = onDismiss,
@@ -61,7 +61,7 @@ fun PeriodHistorySheet(
 @Composable
 private fun PeriodHistoryContent(
     periods: List<Period>,
-    predictedPeriod: Pair<LocalDate, LocalDate>?,
+    predictedPeriods: List<Pair<LocalDate, LocalDate>>,
     cycleLength: Int,
     periodLength: Int,
     onDismiss: () -> Unit,
@@ -80,8 +80,8 @@ private fun PeriodHistoryContent(
     }
 
     // 确定结束月份（预测月份后2个月或当前月份后6个月）
-    val endMonth = if (predictedPeriod != null) {
-        predictedPeriod.second.plusMonths(2).let { YearMonth.of(it.year, it.month) }
+    val endMonth = if (predictedPeriods.isNotEmpty()) {
+        predictedPeriods.last().second.plusMonths(2).let { YearMonth.of(it.year, it.month) }
     } else {
         today.plusMonths(6).let { YearMonth.of(it.year, it.month) }
     }
@@ -180,7 +180,7 @@ private fun PeriodHistoryContent(
                 MonthHistoryView(
                     yearMonth = yearMonth,
                     periods = periods,
-                    predictedPeriod = predictedPeriod,
+                    predictedPeriods = predictedPeriods,
                     today = today,
                     onDateClick = { date ->
                         onJumpToDate(date)
@@ -199,7 +199,7 @@ private fun PeriodHistoryContent(
 private fun MonthHistoryView(
     yearMonth: YearMonth,
     periods: List<Period>,
-    predictedPeriod: Pair<LocalDate, LocalDate>?,
+    predictedPeriods: List<Pair<LocalDate, LocalDate>>,
     today: LocalDate,
     onDateClick: (LocalDate) -> Unit
 ) {
@@ -237,9 +237,9 @@ private fun MonthHistoryView(
                                 !date.isBefore(p.startDate) &&
                                         (p.endDate == null || !date.isAfter(p.endDate))
                             }
-                            val isPredictedPeriod = predictedPeriod?.let { (start, end) ->
+                            val isPredictedPeriod = predictedPeriods.any { (start, end) ->
                                 !date.isBefore(start) && !date.isAfter(end)
-                            } ?: false
+                            }
                             val isToday = date == today
 
                             DateCellWithConnector(

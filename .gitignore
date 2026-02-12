@@ -81,6 +81,7 @@ desktop.ini
 *.jks
 *.keystore
 *.pepk
+keystore.properties
 
 # IntelliJ
 out/
@@ -93,3 +94,5 @@ test-results/
 
 # Compose compiler reports
 compose_compiler/
+
+dist/

@@ -32,7 +32,7 @@ import java.util.Locale
 fun CalendarView(
     records: Map<LocalDate, DailyRecord>,
     periods: List<Period>,
-    predictedPeriod: Pair<LocalDate, LocalDate>?,
+    predictedPeriods: List<Pair<LocalDate, LocalDate>>,
     settings: UserSettings,
     currentDate: LocalDate,
     onDateClick: (LocalDate) -> Unit,
@@ -65,7 +65,7 @@ fun CalendarView(
             yearMonth = selectedMonth,
             records = records,
             periods = periods,
-            predictedPeriod = predictedPeriod,
+            predictedPeriods = predictedPeriods,
             currentDate = currentDate,
             onDateClick = onDateClick
         )
@@ -89,12 +89,13 @@ fun CalendarView(
     if (showHistorySheet) {
         PeriodHistorySheet(
             periods = periods,
-            predictedPeriod = predictedPeriod,
+            predictedPeriods = predictedPeriods,
             cycleLength = settings.cycleLength,
             periodLength = settings.periodLength,
             onDismiss = { showHistorySheet = false },
             onJumpToDate = { date ->
                 selectedMonth = YearMonth.of(date.year, date.month)
+                onMonthChange(selectedMonth)
                 onJumpToDate(date)
             }
         )
@@ -145,7 +146,7 @@ private fun MonthCalendar(
     yearMonth: YearMonth,
     records: Map<LocalDate, DailyRecord>,
     periods: List<Period>,
-    predictedPeriod: Pair<LocalDate, LocalDate>?,
+    predictedPeriods: List<Pair<LocalDate, LocalDate>>,
     currentDate: LocalDate,
     onDateClick: (LocalDate) -> Unit
 ) {
@@ -186,7 +187,7 @@ private fun MonthCalendar(
                                 }
                             } ?: false,
                             isPredictedPeriod = date?.let { d ->
-                                predictedPeriod?.let { (start, end) ->
+                                predictedPeriods.any { (start, end) ->
                                     !d.isBefore(start) && !d.isAfter(end)
                                 }
                             } ?: false,

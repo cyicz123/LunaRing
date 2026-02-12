@@ -54,6 +54,9 @@ fun SettingsRoute(
         },
         onImportClick = {
             importLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+        },
+        onResetDataClick = {
+            viewModel.resetRecordsData()
         }
     )
 }
