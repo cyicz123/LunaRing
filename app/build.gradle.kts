@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlinx.serialization)
+    jacoco
 }
 
 import java.io.FileInputStream
@@ -44,6 +45,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+        }
         release {
             isMinifyEnabled = false
             if (keystorePropertiesFile.exists()) {
@@ -58,8 +62,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        // 禁用 JDK 镜像，解决 Cursor 内置 Java 不完整问题
-        isCoreLibraryDesugaringEnabled = false
+        // Enable java.time and other newer Java APIs on minSdk < 26.
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -68,6 +72,48 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val fileFilter = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "android/**/*.*",
+        "**/di/**/*.*"
+    )
+
+    val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+        exclude(fileFilter)
+    }
+    val kotlinDebugTree = fileTree(layout.buildDirectory.dir("intermediates/javac/debug")) {
+        exclude(fileFilter)
+    }
+
+    sourceDirectories.setFrom(
+        files(
+            "src/main/java",
+            "src/main/kotlin"
+        )
+    )
+    classDirectories.setFrom(files(debugTree, kotlinDebugTree))
+    executionData.setFrom(fileTree(layout.buildDirectory) {
+        include("jacoco/testDebugUnitTest.exec")
+        include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+    })
 }
 
 dependencies {
@@ -105,8 +151,13 @@ dependencies {
     // WorkManager
     implementation(libs.androidx.work.runtime)
     implementation(libs.okhttp)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

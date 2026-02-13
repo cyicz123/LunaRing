@@ -1,5 +1,7 @@
 package com.example.menstruation.data.model
 
+import java.util.Locale
+
 data class NotificationSettings(
     val enabled: Boolean = true,
     val periodStartReminder: Boolean = true,
@@ -25,7 +27,7 @@ data class ReminderTime(
     }
 
     override fun toString(): String {
-        return String.format("%02d:%02d", hour, minute)
+        return String.format(Locale.US, "%02d:%02d", hour, minute)
     }
 
     fun toMinutes(): Int = hour * 60 + minute

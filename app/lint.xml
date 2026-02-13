@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Version update hints are tracked separately from CI quality gates. -->
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+    <issue id="GradleDependency" severity="ignore" />
+
+    <!-- Launcher artwork quality is handled in design asset workflow, not build blocking. -->
+    <issue id="IconLauncherShape" severity="ignore" />
+</lint>
