@@ -524,3 +524,10 @@ app/src/main/java/com/example/menstruation/
 ---
 
 **计划已就绪，等待开始实施。**
+
+---
+
+## License
+
+This project is open-sourced under the MIT License.
+See the `LICENSE` file for details.
