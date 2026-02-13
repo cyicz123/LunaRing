@@ -1,6 +1,8 @@
 package com.example.menstruation.data.model
 
-import org.json.JSONArray
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 
 enum class Symptom(val label: String, val category: SymptomCategory) {
     // 全身
@@ -39,15 +41,29 @@ enum class Symptom(val label: String, val category: SymptomCategory) {
     CRAMPS("痛经", SymptomCategory.OTHER);
 
     companion object {
-        fun toJson(symptoms: List<Symptom>): String {
-            return JSONArray(symptoms.map { it.name }).toString()
+        private val json = Json {
+            ignoreUnknownKeys = true
         }
 
-        fun fromJson(json: String): List<Symptom> {
+        fun toJson(symptoms: List<Symptom>): String {
+            return json.encodeToString(
+                ListSerializer(String.serializer()),
+                symptoms.map { it.name }
+            )
+        }
+
+        fun fromJson(jsonString: String): List<Symptom> {
             return try {
-                val array = JSONArray(json)
-                (0 until array.length()).map { i ->
-                    valueOf(array.getString(i))
+                val names = json.decodeFromString(
+                    ListSerializer(String.serializer()),
+                    jsonString
+                )
+                names.mapNotNull { name ->
+                    try {
+                        valueOf(name)
+                    } catch (e: IllegalArgumentException) {
+                        null // Skip unknown symptoms
+                    }
                 }
             } catch (e: Exception) {
                 emptyList()
