@@ -75,7 +75,7 @@ private fun RecordBottomSheetContent(
 ) {
     // 状态管理
     var selectedFlow by remember { mutableStateOf(record?.flowLevel) }
-    var painLevel by remember { mutableStateOf(record?.painLevel ?: 0) }
+    var painLevel by remember { mutableIntStateOf(record?.painLevel ?: 0) }
     var hadSex by remember { mutableStateOf(record?.hadSex ?: false) }
     var selectedSymptoms by remember { mutableStateOf(record?.physicalSymptoms ?: emptyList()) }
     var selectedMood by remember { mutableStateOf(record?.mood) }
@@ -698,4 +698,3 @@ private fun NoteCard(
         }
     }
 }
-

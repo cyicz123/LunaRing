@@ -1,6 +1,6 @@
 package com.example.menstruation
 
-import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -63,9 +63,12 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var periodRepository: PeriodRepository
     @Inject lateinit var notificationScheduler: NotificationScheduler
     private lateinit var postNotificationsPermissionLauncher: ActivityResultLauncher<String>
+    private val postNotificationsPermission = "android.permission.POST_NOTIFICATIONS"
 
     fun requestPostNotificationsPermissionFromUi() {
-        postNotificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            postNotificationsPermissionLauncher.launch(postNotificationsPermission)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -145,7 +148,7 @@ class MainActivity : ComponentActivity() {
                             val prefs = getSharedPreferences("lunaring_prefs", MODE_PRIVATE)
                             prefs.edit().putBoolean("notif_perm_requested", true).apply()
                             showNotifRationale = false
-                            postNotificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            postNotificationsPermissionLauncher.launch(postNotificationsPermission)
                         },
                         onLater = {
                             val prefs = getSharedPreferences("lunaring_prefs", MODE_PRIVATE)

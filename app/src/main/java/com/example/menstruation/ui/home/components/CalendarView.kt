@@ -37,8 +37,8 @@ fun CalendarView(
     currentDate: LocalDate,
     onDateClick: (LocalDate) -> Unit,
     onMonthChange: (YearMonth) -> Unit,
-    onJumpToDate: (LocalDate) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onJumpToDate: (LocalDate) -> Unit = {}
 ) {
     var selectedMonth by remember { mutableStateOf(YearMonth.now()) }
     var showHistorySheet by remember { mutableStateOf(false) }

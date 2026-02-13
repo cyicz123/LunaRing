@@ -62,8 +62,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        // 禁用 JDK 镜像，解决 Cursor 内置 Java 不完整问题
-        isCoreLibraryDesugaringEnabled = false
+        // Enable java.time and other newer Java APIs on minSdk < 26.
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -96,10 +96,10 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         "**/di/**/*.*"
     )
 
-    val debugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug") {
+    val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
         exclude(fileFilter)
     }
-    val kotlinDebugTree = fileTree("${buildDir}/intermediates/javac/debug") {
+    val kotlinDebugTree = fileTree(layout.buildDirectory.dir("intermediates/javac/debug")) {
         exclude(fileFilter)
     }
 
@@ -110,7 +110,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         )
     )
     classDirectories.setFrom(files(debugTree, kotlinDebugTree))
-    executionData.setFrom(fileTree(buildDir) {
+    executionData.setFrom(fileTree(layout.buildDirectory) {
         include("jacoco/testDebugUnitTest.exec")
         include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
     })
@@ -151,6 +151,7 @@ dependencies {
     // WorkManager
     implementation(libs.androidx.work.runtime)
     implementation(libs.okhttp)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
