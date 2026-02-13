@@ -26,10 +26,10 @@ class GitHubReleaseService @Inject constructor(
 
         return runCatching {
             httpClient.newCall(request).execute().use { response ->
+                val rawBody = response.body?.string().orEmpty()
                 if (!response.isSuccessful) {
                     error("GitHub API 请求失败: HTTP ${response.code}")
                 }
-                val rawBody = response.body?.string().orEmpty()
                 if (rawBody.isBlank()) {
                     error("GitHub API 返回为空")
                 }

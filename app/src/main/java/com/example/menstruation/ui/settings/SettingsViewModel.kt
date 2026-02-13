@@ -22,6 +22,7 @@ import com.example.menstruation.domain.usecase.ImportResult
 import com.example.menstruation.notification.NotificationScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalTime
 import javax.inject.Inject
 
@@ -232,7 +234,10 @@ class SettingsViewModel @Inject constructor(
                 statusMessage = "正在检查更新..."
             )
 
-            when (val result = appUpdateRepository.checkForUpdate(getCurrentVersionName())) {
+            val result = withContext(Dispatchers.IO) {
+                appUpdateRepository.checkForUpdate(getCurrentVersionName())
+            }
+            when (result) {
                 is UpdateCheckResult.UpdateAvailable -> {
                     _updateUiState.value = _updateUiState.value.copy(
                         isChecking = false,
