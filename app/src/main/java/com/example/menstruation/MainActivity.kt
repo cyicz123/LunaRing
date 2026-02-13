@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity() {
                 val hasPerm = NotificationPermissionHelper.hasNotificationPermission(this@MainActivity)
 
                 // Show a styled rationale sheet first; only then trigger the system permission dialog.
-                val prefs = getSharedPreferences("yuehuan_prefs", MODE_PRIVATE)
+                val prefs = getSharedPreferences("lunaring_prefs", MODE_PRIVATE)
                 val alreadyRequested = prefs.getBoolean("notif_perm_requested", false)
                 if (android.os.Build.VERSION.SDK_INT >= 33 &&
                     uiState.isLoading.not() &&
@@ -142,13 +142,13 @@ class MainActivity : ComponentActivity() {
                 if (showNotifRationale) {
                     NotificationPermissionRationaleSheet(
                         onEnable = {
-                            val prefs = getSharedPreferences("yuehuan_prefs", MODE_PRIVATE)
+                            val prefs = getSharedPreferences("lunaring_prefs", MODE_PRIVATE)
                             prefs.edit().putBoolean("notif_perm_requested", true).apply()
                             showNotifRationale = false
                             postNotificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         },
                         onLater = {
-                            val prefs = getSharedPreferences("yuehuan_prefs", MODE_PRIVATE)
+                            val prefs = getSharedPreferences("lunaring_prefs", MODE_PRIVATE)
                             prefs.edit().putBoolean("notif_perm_requested", true).apply()
                             showNotifRationale = false
                             MainScope().launch {
@@ -157,7 +157,7 @@ class MainActivity : ComponentActivity() {
                         },
                         onDismiss = {
                             // Treat dismiss as \"later\" to avoid repeated prompts on every recomposition.
-                            val prefs = getSharedPreferences("yuehuan_prefs", MODE_PRIVATE)
+                            val prefs = getSharedPreferences("lunaring_prefs", MODE_PRIVATE)
                             prefs.edit().putBoolean("notif_perm_requested", true).apply()
                             showNotifRationale = false
                             MainScope().launch {

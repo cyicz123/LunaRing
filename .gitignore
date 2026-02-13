@@ -46,6 +46,8 @@ local.properties
 *.zip
 *.tar.gz
 *.rar
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
 
 # Android captures
 captures/
@@ -73,13 +75,12 @@ desktop.ini
 # Version control
 .svn/
 
-# Gradle wrapper (should be committed, not ignored)
-# !gradle/wrapper/gradle-wrapper.jar
-# !gradle/wrapper/gradle-wrapper.properties
+# Gradle wrapper (should be committed)
 
 # Signing files
 *.jks
 *.keystore
+release.keystore.bak
 *.pepk
 keystore.properties
 keystore.base64.txt
