@@ -50,6 +50,7 @@ fun SettingsScreen(
     onResetDataClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val updateUiState by viewModel.updateUiState.collectAsState()
     var showResetConfirmDialog by remember { mutableStateOf(false) }
     var showNotifRationale by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -105,6 +106,7 @@ fun SettingsScreen(
                 cycleLength = uiState.settings.cycleLength,
                 themeMode = uiState.settings.themeMode,
                 notificationSettings = uiState.settings.notificationSettings,
+                updateUiState = updateUiState,
                 showTimePicker = uiState.showTimePicker,
                 onPeriodLengthChange = viewModel::updatePeriodLength,
                 onCycleLengthChange = viewModel::updateCycleLength,
@@ -125,6 +127,8 @@ fun SettingsScreen(
                 onReminderTimeChange = viewModel::updateReminderTime,
                 onShowTimePicker = viewModel::showTimePicker,
                 onHideTimePicker = viewModel::hideTimePicker,
+                onCheckUpdateClick = viewModel::checkForUpdate,
+                onDownloadUpdateClick = viewModel::downloadAndInstallUpdate,
                 onExportClick = onExportClick,
                 onImportClick = onImportClick,
                 onResetDataClick = { showResetConfirmDialog = true },
@@ -264,6 +268,7 @@ private fun SettingsContent(
     cycleLength: Int,
     themeMode: ThemeMode,
     notificationSettings: NotificationSettings,
+    updateUiState: AppUpdateUiState,
     showTimePicker: Boolean,
     onPeriodLengthChange: (Int) -> Unit,
     onCycleLengthChange: (Int) -> Unit,
@@ -275,6 +280,8 @@ private fun SettingsContent(
     onReminderTimeChange: (Int, Int) -> Unit,
     onShowTimePicker: () -> Unit,
     onHideTimePicker: () -> Unit,
+    onCheckUpdateClick: () -> Unit,
+    onDownloadUpdateClick: () -> Unit,
     onExportClick: () -> Unit,
     onImportClick: () -> Unit,
     onResetDataClick: () -> Unit,
@@ -335,6 +342,13 @@ private fun SettingsContent(
         )
 
         // 数据管理卡片
+        AppUpdateCard(
+            updateUiState = updateUiState,
+            onCheckUpdateClick = onCheckUpdateClick,
+            onDownloadUpdateClick = onDownloadUpdateClick
+        )
+
+        // 数据管理卡片
         DataManagementCard(
             onExportClick = onExportClick,
             onImportClick = onImportClick,
@@ -354,6 +368,94 @@ private fun SettingsContent(
             onTimeSelected = onReminderTimeChange,
             onDismiss = onHideTimePicker
         )
+    }
+}
+
+@Composable
+private fun AppUpdateCard(
+    updateUiState: AppUpdateUiState,
+    onCheckUpdateClick: () -> Unit,
+    onDownloadUpdateClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "应用更新",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = "当前版本：${updateUiState.currentVersion}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (updateUiState.latestRelease != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "最新版本：${updateUiState.latestRelease.versionName}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PinkPrimary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = updateUiState.statusMessage,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (updateUiState.isDownloading) {
+                Spacer(modifier = Modifier.height(10.dp))
+                LinearProgressIndicator(
+                    progress = { updateUiState.downloadProgress / 100f },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = PinkPrimary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "下载进度 ${updateUiState.downloadProgress}%",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = onCheckUpdateClick,
+                    enabled = !updateUiState.isChecking && !updateUiState.isDownloading,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (updateUiState.isChecking) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("检查更新")
+                    }
+                }
+
+                Button(
+                    onClick = onDownloadUpdateClick,
+                    enabled = updateUiState.latestRelease != null &&
+                        !updateUiState.isChecking &&
+                        !updateUiState.isDownloading,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = PinkPrimary),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("下载并安装")
+                }
+            }
+        }
     }
 }
 

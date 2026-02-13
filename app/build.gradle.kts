@@ -26,6 +26,8 @@ android {
         targetSdk = 35
         versionCode = 3
         versionName = "1.0.2"
+        buildConfigField("String", "GITHUB_OWNER", "\"cyicz123\"")
+        buildConfigField("String", "GITHUB_REPO", "\"LunaRing\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -64,6 +66,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -101,6 +104,7 @@ dependencies {
 
     // WorkManager
     implementation(libs.androidx.work.runtime)
+    implementation(libs.okhttp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

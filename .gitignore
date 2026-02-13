@@ -82,6 +82,7 @@ desktop.ini
 *.keystore
 *.pepk
 keystore.properties
+keystore.base64.txt
 
 # IntelliJ
 out/
